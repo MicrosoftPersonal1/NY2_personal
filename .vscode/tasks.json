@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "BPA: check model", "type": "shell",
+      "command": "powershell -ExecutionPolicy Bypass -File ci/bpa.ps1", "problemMatcher": [] },
+    { "label": "Tests: catalog names", "type": "shell",
+      "command": "python ci/check_catalog_names.py", "problemMatcher": [] },
+    { "label": "Tests: coverage", "type": "shell",
+      "command": "python ci/check_test_coverage.py", "problemMatcher": [] },
+    { "label": "Tests: check catalog", "dependsOrder": "sequence",
+      "dependsOn": [ "Tests: catalog names", "Tests: coverage" ], "problemMatcher": [] },
+    { "label": "Tests: export DAX for DAX query view", "type": "shell",
+      "command": "python ci/run_tests.py --print-dax tests/generated.dax", "problemMatcher": [] },
+    { "label": "Deploy + Test (TEST)", "type": "shell",
+      "command": "python ci/deploy_and_test.py", "problemMatcher": [] }
+  ]
+}

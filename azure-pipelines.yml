@@ -1,0 +1,76 @@
+# PR validation comes from the branch policy (Repos > Branches > main > Build validation), not a pr: trigger.
+trigger:
+  branches: { include: [ main ] }
+
+pool:
+  vmImage: windows-latest   # TE2 runs on Windows
+
+variables:
+  - group: ny-fabric        # TENANT_ID, CLIENT_ID, CLIENT_SECRET (secret), TEST_WS_ID, TEST_DS_ID, PROD_WS_ID
+
+stages:
+- stage: Validate                       # runs on every PR and every merge
+  jobs:
+  - job: Static
+    steps:
+    - powershell: |
+        $te = "$(Agent.TempDirectory)\TE"
+        Invoke-WebRequest -OutFile "$te.zip" `
+          "https://github.com/TabularEditor/TabularEditor/releases/latest/download/TabularEditor.Portable.zip"
+        Expand-Archive "$te.zip" -DestinationPath $te -Force
+        $failed = $false
+        Get-ChildItem -Recurse -Filter "definition.pbism" | ForEach-Object {
+          $model = Join-Path $_.Directory.FullName "definition"
+          if (!(Test-Path $model)) { $model = Join-Path $_.Directory.FullName "model.bim" }
+          $p = Start-Process "$te\TabularEditor.exe" -NoNewWindow -Wait -PassThru `
+               -ArgumentList "`"$model`" -A `"$(Build.SourcesDirectory)\bpa\Rules-NY.json`" -V"
+          if ($p.ExitCode -ne 0) { $failed = $true }
+        }
+        if ($failed) { exit 1 }
+      displayName: Best Practice Analyzer
+    - task: UsePythonVersion@0
+      inputs: { versionSpec: '3.11' }
+    - script: pip install pyyaml && python ci/check_test_coverage.py
+      displayName: Every KPI measure has a test
+    - script: python ci/check_catalog_names.py
+      displayName: Test catalogue matches the model
+    - script: python ci/check_shared_dimensions.py
+      displayName: Shared dimensions identical across core models
+
+- stage: DeployTest                     # only after merge to main
+  dependsOn: Validate
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - job: DeployAndTest
+    steps:
+    - task: UsePythonVersion@0
+      inputs: { versionSpec: '3.11' }
+    - script: pip install fabric-cicd azure-identity requests pyyaml
+    - script: python ci/deploy.py --env TEST
+      env: { AZURE_TENANT_ID: $(TENANT_ID), AZURE_CLIENT_ID: $(CLIENT_ID), AZURE_CLIENT_SECRET: $(CLIENT_SECRET) }
+      displayName: Deploy to TEST
+    - script: python ci/refresh.py --ws $(TEST_WS_ID) --ds $(TEST_DS_ID)
+      env: { AZURE_TENANT_ID: $(TENANT_ID), AZURE_CLIENT_ID: $(CLIENT_ID), AZURE_CLIENT_SECRET: $(CLIENT_SECRET) }
+      displayName: Refresh TEST model
+    - script: python ci/run_tests.py --ws $(TEST_WS_ID) --ds $(TEST_DS_ID) --junit test-results.xml
+      env: { AZURE_TENANT_ID: $(TENANT_ID), AZURE_CLIENT_ID: $(CLIENT_ID), AZURE_CLIENT_SECRET: $(CLIENT_SECRET) }
+      displayName: Aggregation check
+    - task: PublishTestResults@2
+      condition: always()
+      inputs: { testResultsFormat: JUnit, testResultsFiles: test-results.xml, testRunTitle: Aggregation check }
+
+- stage: DeployProd
+  dependsOn: DeployTest
+  jobs:
+  - deployment: Prod
+    environment: ny-bi-prod          # approval check configured on this environment
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: UsePythonVersion@0
+            inputs: { versionSpec: '3.11' }
+          - script: pip install fabric-cicd azure-identity
+          - script: python ci/deploy.py --env PROD
+            env: { AZURE_TENANT_ID: $(TENANT_ID), AZURE_CLIENT_ID: $(CLIENT_ID), AZURE_CLIENT_SECRET: $(CLIENT_SECRET) }

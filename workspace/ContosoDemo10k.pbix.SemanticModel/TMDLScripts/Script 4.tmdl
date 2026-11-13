@@ -1,0 +1,10 @@
+createOrReplace
+
+	ref table Sales
+
+		measure Umsatz = SUMX ( Sales, Sales[Quantity] * Sales[Net Price] )
+
+		measure Kosten = SUMX ( Sales, Sales[Quantity] * Sales[Unit Cost] )
+
+		
+

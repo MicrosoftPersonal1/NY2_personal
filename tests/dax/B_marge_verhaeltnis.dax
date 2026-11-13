@@ -1,0 +1,11 @@
+// B · Marge % ist ein echtes Verhältnis, kein Durchschnitt – Ebene austauschen und wiederholen
+//     (Store[StoreKey], Store[State], Product[Category], 'Date'[Year])
+EVALUATE
+VAR t =
+    SUMMARIZECOLUMNS (
+        Store[State],
+        "Measure", [Marge %],
+        "Expected", DIVIDE ( [Marge], [Umsatz] )
+    )
+RETURN
+    ADDCOLUMNS ( t, "Diff", [Measure] - [Expected] )

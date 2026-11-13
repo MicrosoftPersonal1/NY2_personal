@@ -1,0 +1,16 @@
+createOrReplace
+
+	ref table Sales
+
+		measure Umsatz = SUMX ( Sales, Sales[Quantity] * Sales[Net Price] )
+
+		measure Kosten = SUMX ( Sales, Sales[Quantity] * Sales[Unit Cost] )
+
+		measure Marge = [Umsatz] - [Kosten]
+
+		measure 'Marge %' = AVERAGEX ( VALUES ( Store[StoreKey] ), [Marge] / [Umsatz] )
+
+		measure 'Absatz Stück' = SUM ( Sales[Quantity] )
+
+		measure 'Kunden (eindeutig)' = DISTINCTCOUNT ( Sales[CustomerKey] )
+

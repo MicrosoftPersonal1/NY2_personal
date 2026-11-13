@@ -1,0 +1,12 @@
+// C · Eindeutige Kunden: größte Filiale ≤ Land ≤ Summe der Filialen
+//     Zeilen mit "Ok" = FALSE sind Fehler
+EVALUATE
+VAR t =
+    SUMMARIZECOLUMNS (
+        Store[Country],
+        "Value", [Kunden (eindeutig)],
+        "MaxStore", MAXX ( VALUES ( Store[StoreKey] ), [Kunden (eindeutig)] ),
+        "SumStores", SUMX ( VALUES ( Store[StoreKey] ), [Kunden (eindeutig)] )
+    )
+RETURN
+    ADDCOLUMNS ( t, "Ok", [Value] >= [MaxStore] && [Value] <= [SumStores] )

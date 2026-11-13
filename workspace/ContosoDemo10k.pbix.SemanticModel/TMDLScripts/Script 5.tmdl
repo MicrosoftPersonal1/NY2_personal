@@ -1,0 +1,10 @@
+createOrReplace
+
+	ref table Sales
+
+		measure Marge = [Umsatz] - [Kosten]
+
+		measure 'Absatz Stück' = SUM ( Sales[Quantity] )
+
+		measure 'Kunden (eindeutig)' = DISTINCTCOUNT ( Sales[CustomerKey] )
+

@@ -1,0 +1,5 @@
+# generated locally
+bpa-*.txt
+tests/generated.dax
+test-results.xml
+__pycache__/

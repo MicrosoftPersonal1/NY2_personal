@@ -1,0 +1,64 @@
+# Test catalogue for the demo model (Contoso sample data).
+# Tables: Sales (facts), Customer, Product, Store, 'Date'.
+# Levels used below:
+#   Store:   StoreKey -> State -> Country
+#   Product: ProductKey -> Subcategory -> Category
+#   Date:    Month -> Year           (Sales[Order Date] is the active date relationship)
+# Rules for writing entries: .github/instructions/dax-tests.instructions.md
+# Check after every change: VS Code task "Tests: check catalog".
+
+tolerance: { amount: 0.01, ratio: 0.0001 }
+
+data_check: Umsatz                           # fails if this measure is blank or 0 (empty or broken model)
+
+tests:
+  - measure: Umsatz
+    type: additive
+    paths:                                   # [parent, child] – one pair per step
+      - [ "Store[State]",          "Store[StoreKey]" ]
+      - [ "Store[Country]",        "Store[State]" ]
+      - [ "Product[Subcategory]",  "Product[ProductKey]" ]
+      - [ "Product[Category]",     "Product[Subcategory]" ]
+      - [ "'Date'[Year]",          "'Date'[Month]" ]
+    total: "Store[Country]"                  # countries add up to the grand total (finds sales without a store)
+
+  - measure: Kosten
+    type: additive
+    paths:
+      - [ "Store[State]",  "Store[StoreKey]" ]
+      - [ "'Date'[Year]",  "'Date'[Month]" ]
+
+  - measure: Marge
+    type: additive
+    paths:
+      - [ "Store[State]",          "Store[StoreKey]" ]
+      - [ "Product[Subcategory]",  "Product[ProductKey]" ]
+
+  - measure: Absatz Stück
+    type: additive
+    paths:
+      - [ "Product[Category]",  "Product[Subcategory]" ]
+      - [ "'Date'[Year]",       "'Date'[Month]" ]
+
+  - measure: Marge %
+    type: ratio
+    numerator: Marge
+    denominator: Umsatz
+    levels: [ "Store[StoreKey]", "Store[State]", "Product[Category]", "'Date'[Year]" ]
+
+  - measure: Kunden (eindeutig)
+    type: distinct
+    paths:
+      - [ "Store[Country]",  "Store[StoreKey]" ]
+      - [ "'Date'[Year]",    "'Date'[Month]" ]
+
+# semi_additive – this model has no stock table. Example for a New Yorker stock model:
+#  - measure: Bestand Stück
+#    type: semi_additive
+#    fact: Stock
+#    periods: [ "'Date'[Year], 'Date'[Month]", "'Date'[Year]" ]
+
+reference:
+  - measure: Umsatz
+    by: [ "Store[Country]", "'Date'[Year]" ]
+    file: tests/reference/umsatz_land_jahr.csv   # pilot: values approved by Controlling; demo: see docs/07

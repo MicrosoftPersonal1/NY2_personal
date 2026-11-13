@@ -1,0 +1,8 @@
+createOrReplace
+
+	ref table Sales
+
+
+		measure 'Marge %' = AVERAGEX ( VALUES ( Store[StoreKey] ), [Marge] / [Umsatz] )
+
+

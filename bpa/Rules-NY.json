@@ -1,0 +1,82 @@
+[
+  {
+    "ID": "NY_MEASURE_DESCRIPTION",
+    "Name": "[NY] Every visible measure needs a description",
+    "Category": "AI-ready",
+    "Description": "Copilot uses descriptions as context. Without one it guesses.",
+    "Severity": 3,
+    "Scope": "Measure",
+    "Expression": "IsVisible and string.IsNullOrWhitespace(Description)",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "NY_TABLE_DESCRIPTION",
+    "Name": "[NY] Every visible table needs a description",
+    "Category": "AI-ready",
+    "Description": "Copilot uses table descriptions to pick the right table.",
+    "Severity": 2,
+    "Scope": "Table",
+    "Expression": "not IsHidden and string.IsNullOrWhitespace(Description)",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "NY_MEASURE_FORMAT",
+    "Name": "[NY] Every measure needs a format string",
+    "Category": "AI-ready",
+    "Description": "Consistent formatting in reports and Copilot answers.",
+    "Severity": 2,
+    "Scope": "Measure",
+    "Expression": "string.IsNullOrWhitespace(FormatString)",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "NY_MEASURE_FOLDER",
+    "Name": "[NY] Every visible measure sits in a display folder",
+    "Category": "AI-ready",
+    "Description": "Keeps the field list navigable for users and AI.",
+    "Severity": 2,
+    "Scope": "Measure",
+    "Expression": "IsVisible and string.IsNullOrWhitespace(DisplayFolder)",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "NY_HIDE_NUMERIC_COLUMNS",
+    "Name": "[NY] Visible numeric columns must not summarize automatically",
+    "Category": "AI-ready",
+    "Description": "Avoids implicit measures with wrong aggregation.",
+    "Severity": 3,
+    "Scope": "DataColumn",
+    "Expression": "(DataType = \"Int64\" or DataType = \"Decimal\" or DataType = \"Double\") and SummarizeBy <> \"None\" and not (IsHidden or Table.IsHidden)",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "NY_USE_DIVIDE",
+    "Name": "[NY] Use DIVIDE instead of /",
+    "Category": "AI-ready",
+    "Description": "DIVIDE handles division by zero safely.",
+    "Severity": 3,
+    "Scope": "Measure",
+    "Expression": "RegEx.IsMatch(Expression, \"\\]\\s*/(?!/)(?!\\*)\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "NY_NO_BIDI",
+    "Name": "[NY] No bi-directional relationships without approval",
+    "Category": "AI-ready",
+    "Description": "Bi-directional filters cause ambiguous results.",
+    "Severity": 2,
+    "Scope": "Relationship",
+    "Expression": "CrossFilteringBehavior == CrossFilteringBehavior.BothDirections",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "NY_NAMING",
+    "Name": "[NY] Business names without technical prefixes or double spaces",
+    "Category": "AI-ready",
+    "Description": "Copilot matches questions to readable names.",
+    "Severity": 2,
+    "Scope": "Measure, Table, DataColumn",
+    "Expression": "Name.StartsWith(\"_\") or Name.StartsWith(\"Measure\") or Name.Contains(\"  \") or Name <> Name.Trim()",
+    "CompatibilityLevel": 1200
+  }
+]

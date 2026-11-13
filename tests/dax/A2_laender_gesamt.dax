@@ -1,0 +1,8 @@
+// A2 · Die Länder ergeben das Gesamt – findet auch Umsätze, deren StoreKey in Store fehlt
+EVALUATE
+ROW (
+    "Total", CALCULATE ( [Umsatz], REMOVEFILTERS () ),
+    "SumOfCountries", SUMX ( ALLNOBLANKROW ( Store[Country] ), [Umsatz] ),
+    "Diff", CALCULATE ( [Umsatz], REMOVEFILTERS () )
+            - SUMX ( ALLNOBLANKROW ( Store[Country] ), [Umsatz] )
+)

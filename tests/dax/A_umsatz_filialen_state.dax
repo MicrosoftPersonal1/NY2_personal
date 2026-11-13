@@ -1,0 +1,10 @@
+// A · Umsatz: die Filialen ergeben den State (jede Diff ≈ 0)
+EVALUATE
+VAR t =
+    SUMMARIZECOLUMNS (
+        Store[State],
+        "StateValue", [Umsatz],
+        "SumOfStores", SUMX ( VALUES ( Store[StoreKey] ), [Umsatz] )
+    )
+RETURN
+    ADDCOLUMNS ( t, "Diff", [StateValue] - [SumOfStores] )
