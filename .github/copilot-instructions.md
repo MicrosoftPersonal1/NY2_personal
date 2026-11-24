@@ -68,3 +68,11 @@ measure 'Marge %' = DIVIDE ( [Marge], [Umsatz] )
 measure 'Marge %' =
     AVERAGEX ( VALUES ( Store[StoreKey] ), [Marge] / [Umsatz] )
 ```
+
+## Code Review (Pull Requests)
+- Prüfe DAX auf robuste Berechnungen: Verhältnisse mit `DIVIDE`, keine direkte Division mit `/`.
+- Prüfe, dass neue Report-Kennzahlen als **explizite Measures** umgesetzt sind.
+- Prüfe bei neuen/angepassten Measures: Beschreibung vorhanden, sinnvolles Format, passender KPI-Ordner.
+- Prüfe TMDL-Beziehungen: keine bidirektionalen Filter außer dokumentierte Ausnahme mit Begründung im PR.
+- Prüfe PBIR-Seiten gegen `.github/instructions/report-standards.instructions.md`.
+- Liste in Reviews nur konkrete Verstöße (Datei/Objekt/Regel) plus kurze Korrekturempfehlung.

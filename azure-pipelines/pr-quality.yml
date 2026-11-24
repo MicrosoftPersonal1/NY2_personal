@@ -1,0 +1,79 @@
+trigger: none
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  # Platzhalter: als Pipeline-Variablen oder Variable Group setzen.
+  # Pflicht für echte Workspace-Tests: TENANT_ID, CLIENT_ID, CLIENT_SECRET, TEST_WS_ID, TEST_DS_ID
+  TENANT_ID: ""
+  CLIENT_ID: ""
+  CLIENT_SECRET: ""
+  TEST_WS_ID: ""
+  TEST_DS_ID: ""
+
+stages:
+  - stage: QualityChecks
+    displayName: PR Quality Checks
+    jobs:
+      - job: BPA
+        displayName: BPA (Severity 3 blockiert)
+        steps:
+          - checkout: self
+          - powershell: |
+              $teRoot = "$(Agent.TempDirectory)\te2"
+              New-Item -ItemType Directory -Path $teRoot -Force | Out-Null
+              Invoke-WebRequest -Uri "https://github.com/TabularEditor/TabularEditor/releases/latest/download/TabularEditor.Portable.zip" -OutFile "$teRoot\te2.zip"
+              Expand-Archive "$teRoot\te2.zip" -DestinationPath $teRoot -Force
+              Write-Host "##vso[task.setvariable variable=TE_PATH]$teRoot\TabularEditor.exe"
+            displayName: Install Tabular Editor 2
+          - powershell: ./ci/bpa.ps1
+            displayName: Run BPA
+
+      - job: PBIRSchema
+        displayName: PBIR JSON Schema
+        steps:
+          - checkout: self
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.11"
+          - script: pip install jsonschema
+            displayName: Install schema validator
+          - script: python ci/validate_pbir_json.py
+            displayName: Validate PBIR JSON
+
+      - job: DAXTests
+        displayName: DAX Tests or DAX Export
+        steps:
+          - checkout: self
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.11"
+          - script: pip install pyyaml requests azure-identity
+            displayName: Install test dependencies
+          - script: python ci/run_tests.py --ws "$(TEST_WS_ID)" --ds "$(TEST_DS_ID)" --junit test-results.xml
+            displayName: Run aggregation tests
+            env:
+              AZURE_TENANT_ID: $(TENANT_ID)
+              AZURE_CLIENT_ID: $(CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(CLIENT_SECRET)
+            condition: and(succeeded(), ne(variables['TEST_WS_ID'], ''), ne(variables['TEST_DS_ID'], ''), ne(variables['TENANT_ID'], ''), ne(variables['CLIENT_ID'], ''), ne(variables['CLIENT_SECRET'], ''))
+          - script: python ci/run_tests.py --print-dax tests/generated.dax
+            displayName: Fallback: generate DAX only
+            condition: and(succeeded(), not(and(ne(variables['TEST_WS_ID'], ''), ne(variables['TEST_DS_ID'], ''), ne(variables['TENANT_ID'], ''), ne(variables['CLIENT_ID'], ''), ne(variables['CLIENT_SECRET'], ''))))
+          - task: PublishPipelineArtifact@1
+            displayName: Publish generated.dax
+            inputs:
+              targetPath: tests/generated.dax
+              artifact: generated-dax
+            condition: and(succeeded(), not(and(ne(variables['TEST_WS_ID'], ''), ne(variables['TEST_DS_ID'], ''), ne(variables['TENANT_ID'], ''), ne(variables['CLIENT_ID'], ''), ne(variables['CLIENT_SECRET'], ''))))
+          - task: PublishPipelineArtifact@1
+            displayName: Publish JUnit result
+            inputs:
+              targetPath: test-results.xml
+              artifact: aggregation-test-results
+            condition: and(succeededOrFailed(), ne(variables['TEST_WS_ID'], ''), ne(variables['TEST_DS_ID'], ''), ne(variables['TENANT_ID'], ''), ne(variables['CLIENT_ID'], ''), ne(variables['CLIENT_SECRET'], ''))

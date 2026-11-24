@@ -1,0 +1,67 @@
+name: PR Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  bpa:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Tabular Editor 2
+        shell: pwsh
+        run: |
+          $teRoot = Join-Path $env:RUNNER_TEMP "te2"
+          New-Item -ItemType Directory -Path $teRoot -Force | Out-Null
+          Invoke-WebRequest -Uri "https://github.com/TabularEditor/TabularEditor/releases/latest/download/TabularEditor.Portable.zip" -OutFile (Join-Path $teRoot "te2.zip")
+          Expand-Archive (Join-Path $teRoot "te2.zip") -DestinationPath $teRoot -Force
+          "TE_PATH=$teRoot\\TabularEditor.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: BPA (Severity 3 blockiert)
+        shell: pwsh
+        run: ./ci/bpa.ps1
+
+  report-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install schema validator dependencies
+        run: pip install jsonschema
+      - name: PBIR JSON Schema validieren
+        run: python ci/validate_pbir_json.py
+
+  dax-tests-or-export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: pip install pyyaml requests azure-identity
+      - name: DAX/Aggregation-Tests im TEST-Workspace
+        if: ${{ secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' }}
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: python ci/run_tests.py --ws "${{ secrets.TEST_WS_ID }}" --ds "${{ secrets.TEST_DS_ID }}" --junit test-results.xml
+      - name: DAX-Abfragen generieren (Fallback ohne Secrets)
+        if: ${{ !(secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '') }}
+        run: python ci/run_tests.py --print-dax tests/generated.dax
+      - name: Upload generated.dax
+        if: ${{ !(secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-dax
+          path: tests/generated.dax
+      - name: Upload JUnit
+        if: ${{ secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregation-test-results
+          path: test-results.xml
