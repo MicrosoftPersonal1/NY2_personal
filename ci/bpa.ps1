@@ -1,20 +1,24 @@
-# Finds Tabular Editor 2 (free) automatically. Override: $env:TE_PATH = "C:\...\TabularEditor.exe"
-$candidates = @(
+# Findet Tabular Editor 2 automatisch in definierter Reihenfolge.
+$teCandidates = @(
     $env:TE_PATH,
     "C:\Program Files (x86)\Tabular Editor\TabularEditor.exe",
-    "C:\Program Files\Tabular Editor\TabularEditor.exe",
-    "C:\Tools\TabularEditor\TabularEditor.exe",
-    "$env:LOCALAPPDATA\TabularEditor\TabularEditor.exe"
-) | Where-Object { $_ -and (Test-Path $_) }
-if (-not $candidates) {
-    $cmd = Get-Command TabularEditor.exe -ErrorAction SilentlyContinue
-    if ($cmd) { $candidates = @($cmd.Source) }
+    "C:\Program Files\Tabular Editor\TabularEditor.exe"
+)
+$te = $null
+foreach ($candidate in $teCandidates) {
+    if ($candidate -and (Test-Path $candidate)) {
+        $te = $candidate
+        break
+    }
 }
-if (-not $candidates) {
-    Write-Host "Tabular Editor 2 not found. Install it (github.com/TabularEditor/TabularEditor/releases) or set TE_PATH." -ForegroundColor Red
+if (-not $te) {
+    $cmd = Get-Command TabularEditor.exe -ErrorAction SilentlyContinue
+    if ($cmd) { $te = $cmd.Source }
+}
+if (-not $te) {
+    Write-Host "Tabular Editor 2 wurde nicht gefunden. Bitte TE_PATH setzen oder Tabular Editor 2 unter 'C:\Program Files (x86)\Tabular Editor\' bzw. 'C:\Program Files\Tabular Editor\' installieren." -ForegroundColor Red
     exit 2
 }
-$te    = @($candidates)[0]
 $rules = "bpa\Rules-NY.json"
 Write-Host "Using $te"
 $failed = $false

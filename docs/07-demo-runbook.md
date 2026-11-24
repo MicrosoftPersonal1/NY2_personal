@@ -79,7 +79,7 @@ Step 5 below checks them.
 | 6:30–8:30 | New measure | `/new-measure name=Durchschnittspreis definition=Umsatz geteilt durch Absatz Stück` → Ctrl+S → task **Tests: check catalog** | Measure in Desktop, ratio entry in the catalogue, "covered" |
 | 8:30–11:30 | Test | `/run-tests scope=Marge %` → fix prompt → `/run-tests scope=Marge %` | 3 FAIL, then 4 PASS. The matrix values change |
 | 11:30–13 | Sichern | `/review-model` → new branch → commit → show the prepared pull request | No violations; checks green |
-| 13–14 | AI-ready | Desktop → Prep data for AI; Copilot question on Marge % by country | The corrected value |
+| 13–14 | Report-Qualität | `/review-report` auf die Report-Seiten ausführen (oder vorbereitetes Ergebnis zeigen) | Gefundene Regelverstöße inkl. Vorschlägen |
 
 **Prompts:**
 - Connect:
@@ -90,7 +90,7 @@ Step 5 below checks them.
   `/new-measure name=Umsatz Lieferdatum definition=Umsatz nach Lieferdatum statt Bestelldatum`
   This is an additive type, tested on Date levels.
 
-**Must show: Connect, Analyse, Improve, New measure, Test.** Sichern and AI-ready can move to slides.
+**Must show: Connect, Analyse, Improve, New measure, Test.** Sichern and Report-Qualität can move to slides.
 
 ## Rules during the demo
 - Copilot changes the model only through MCP while Desktop is open.

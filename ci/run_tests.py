@@ -94,6 +94,7 @@ def main():
     ap.add_argument("--catalog", default="tests/catalog.yml")
     ap.add_argument("--junit", default="test-results.xml")
     ap.add_argument("--print-dax", metavar="FILE", help="only write the queries to FILE, no service needed")
+    # argparse %-formatting requires escaping a literal percent as %%
     ap.add_argument("--only", help="comma-separated measure names, e.g. \"Marge %%,Umsatz\"")
     a = ap.parse_args()
 
