@@ -1,5 +1,25 @@
 # 1 · Setup checklist
 
+## Setup in 5 Minuten (Teil 2 Demo)
+1. **VS Code + Extensions**
+   - GitHub Copilot + GitHub Copilot Chat (Agent Mode)
+   - Power BI Authoring MCP Server in Scout/VS Code aktiv
+2. **Power BI Authoring Plugin**
+   - `powerbi-authoring` aus `microsoft/skills-for-fabric` installieren.
+   - Quelle: https://learn.microsoft.com/en-us/power-bi/developer/agentic/power-bi-agentic-overview
+   - UNVERIFIED – bitte prüfen: exakter Installationsweg je nach VS-Code-/Copilot-Build (Marketplace vs. Skills-Import) kann variieren.
+3. **Python Abhängigkeiten**
+   - `pip install pyyaml requests azure-identity jsonschema fabric-cicd`
+4. **Tabular Editor 2**
+   - Installation prüfen; optional `TE_PATH` setzen.
+   - `ci/bpa.ps1` erkennt TE2 automatisch.
+5. **Power BI Desktop**
+   - Preview-Feature für PBIP/PBIR aktivieren (falls noch nicht aktiv).
+   - Report als PBIP speichern, damit `.Report/definition/pages/...` als Einzeldateien vorliegen.
+6. **Quick Check**
+   - `python ci/run_tests.py --help`
+   - `pwsh -File ci/bpa.ps1` (soll starten; ohne Modell ggf. nur Hinweis)
+
 ## Prerequisites to agree with New Yorker
 - [ ] Git repo (Azure DevOps or GitHub); models saved as Power BI Project (PBIP) in TMDL format
 - [ ] Service principal for the pipeline; tenant setting that allows service principals to use Fabric / Power BI APIs; access to the TEST and PROD workspaces
