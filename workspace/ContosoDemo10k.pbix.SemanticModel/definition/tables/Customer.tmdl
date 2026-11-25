@@ -1,3 +1,4 @@
+/// Kundendimension mit Kundenmerkmalen wie Name, Wohnort, Land, Geschlecht und Alter.
 table Customer
 	lineageTag: 7b434333-f698-4a4b-b0f5-afdd914a6865
 

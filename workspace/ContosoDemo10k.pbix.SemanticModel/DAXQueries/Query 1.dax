@@ -1,0 +1,112 @@
+// Aggregation tests generated from tests/catalog.yml
+// Paste into DAX query view (one result per EVALUATE) or let Copilot run them (/run-tests).
+
+// [value must not be blank] Umsatz: model has data
+EVALUATE ROW ( "Value", [Umsatz] )
+
+// [0 rows = PASS] Umsatz: Store[StoreKey] -> Store[State]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Store[State], "Parent", [Umsatz],
+    "SumChildren", SUMX ( VALUES ( Store[StoreKey] ), [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Umsatz: Store[State] -> Store[Country]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Store[Country], "Parent", [Umsatz],
+    "SumChildren", SUMX ( VALUES ( Store[State] ), [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Umsatz: Product[ProductKey] -> Product[Subcategory]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Product[Subcategory], "Parent", [Umsatz],
+    "SumChildren", SUMX ( VALUES ( Product[ProductKey] ), [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Umsatz: Product[Subcategory] -> Product[Category]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Product[Category], "Parent", [Umsatz],
+    "SumChildren", SUMX ( VALUES ( Product[Subcategory] ), [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Umsatz: 'Date'[Month] -> 'Date'[Year]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( 'Date'[Year], "Parent", [Umsatz],
+    "SumChildren", SUMX ( VALUES ( 'Date'[Month] ), [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Umsatz: Store[Country] -> total
+EVALUATE
+VAR tot = CALCULATE ( [Umsatz], REMOVEFILTERS () )
+VAR parts = SUMX ( ALLNOBLANKROW ( Store[Country] ), [Umsatz] )
+RETURN FILTER ( ROW ( "Total", tot, "SumParts", parts, "Diff", tot - parts ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Kosten: Store[StoreKey] -> Store[State]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Store[State], "Parent", [Kosten],
+    "SumChildren", SUMX ( VALUES ( Store[StoreKey] ), [Kosten] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Kosten: 'Date'[Month] -> 'Date'[Year]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( 'Date'[Year], "Parent", [Kosten],
+    "SumChildren", SUMX ( VALUES ( 'Date'[Month] ), [Kosten] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Marge: Store[StoreKey] -> Store[State]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Store[State], "Parent", [Marge],
+    "SumChildren", SUMX ( VALUES ( Store[StoreKey] ), [Marge] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Marge: Product[ProductKey] -> Product[Subcategory]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Product[Subcategory], "Parent", [Marge],
+    "SumChildren", SUMX ( VALUES ( Product[ProductKey] ), [Marge] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Absatz Stück: Product[Subcategory] -> Product[Category]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Product[Category], "Parent", [Absatz Stück],
+    "SumChildren", SUMX ( VALUES ( Product[Subcategory] ), [Absatz Stück] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Absatz Stück: 'Date'[Month] -> 'Date'[Year]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( 'Date'[Year], "Parent", [Absatz Stück],
+    "SumChildren", SUMX ( VALUES ( 'Date'[Month] ), [Absatz Stück] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Parent] - [SumChildren] ), ABS ( [Diff] ) > 0.01 )
+
+// [0 rows = PASS] Marge %: ratio at Store[StoreKey]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Store[StoreKey], "Value", [Marge %], "Expected", DIVIDE ( [Marge], [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Value] - [Expected] ), ABS ( [Diff] ) > 0.0001 )
+
+// [0 rows = PASS] Marge %: ratio at Store[State]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Store[State], "Value", [Marge %], "Expected", DIVIDE ( [Marge], [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Value] - [Expected] ), ABS ( [Diff] ) > 0.0001 )
+
+// [0 rows = PASS] Marge %: ratio at Product[Category]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Product[Category], "Value", [Marge %], "Expected", DIVIDE ( [Marge], [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Value] - [Expected] ), ABS ( [Diff] ) > 0.0001 )
+
+// [0 rows = PASS] Marge %: ratio at 'Date'[Year]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( 'Date'[Year], "Value", [Marge %], "Expected", DIVIDE ( [Marge], [Umsatz] ) )
+RETURN FILTER ( ADDCOLUMNS ( t, "Diff", [Value] - [Expected] ), ABS ( [Diff] ) > 0.0001 )
+
+// [0 rows = PASS] Kunden (eindeutig): distinct Store[StoreKey] -> Store[Country]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( Store[Country], "Value", [Kunden (eindeutig)],
+    "MaxChild", MAXX ( VALUES ( Store[StoreKey] ), [Kunden (eindeutig)] ), "SumChildren", SUMX ( VALUES ( Store[StoreKey] ), [Kunden (eindeutig)] ) )
+RETURN FILTER ( t, [Value] < [MaxChild] || [Value] > [SumChildren] )
+
+// [0 rows = PASS] Kunden (eindeutig): distinct 'Date'[Month] -> 'Date'[Year]
+EVALUATE
+VAR t = SUMMARIZECOLUMNS ( 'Date'[Year], "Value", [Kunden (eindeutig)],
+    "MaxChild", MAXX ( VALUES ( 'Date'[Month] ), [Kunden (eindeutig)] ), "SumChildren", SUMX ( VALUES ( 'Date'[Month] ), [Kunden (eindeutig)] ) )
+RETURN FILTER ( t, [Value] < [MaxChild] || [Value] > [SumChildren] )
+
+// [compare with tests/reference/umsatz_land_jahr.csv] Umsatz: vs reference
+EVALUATE SUMMARIZECOLUMNS ( Store[Country], 'Date'[Year], "Value", [Umsatz] )

@@ -10,7 +10,7 @@ annotation __PBI_TimeIntelligenceEnabled = 0
 
 annotation PBI_QueryOrder = ["Customer","Date","Product","Sales","Store","DatabaseName"]
 
-annotation PBI_ProTooling = ["TMDLView_Desktop","DevMode","MCP-PBIModeling","CopilotTooling"]
+annotation PBI_ProTooling = ["TMDLView_Desktop","DevMode","MCP-PBIModeling","CopilotTooling","DaxQueryView_Desktop"]
 
 ref table Customer
 ref table Date

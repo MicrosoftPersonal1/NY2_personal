@@ -1,3 +1,4 @@
+/// Filialdimension mit Standort- und Betriebsmerkmalen wie Land, Bundesstaat, Fläche und Status.
 table Store
 	lineageTag: aca9499e-9ded-4d0a-835d-f1f04b9d2e92
 

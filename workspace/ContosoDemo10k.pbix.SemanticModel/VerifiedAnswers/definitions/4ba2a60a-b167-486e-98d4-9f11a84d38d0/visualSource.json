@@ -1,0 +1,81 @@
+{
+  "visualType": "columnChart",
+  "query": {
+    "queryState": {
+      "Category": {
+        "projections": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Customer"
+                  }
+                },
+                "Property": "Country"
+              }
+            },
+            "queryRef": "Customer.Country",
+            "nativeQueryRef": "Country",
+            "active": true
+          }
+        ]
+      },
+      "Series": {
+        "projections": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Customer"
+                  }
+                },
+                "Property": "Continent"
+              }
+            },
+            "queryRef": "Customer.Continent",
+            "nativeQueryRef": "Continent"
+          }
+        ]
+      },
+      "Y": {
+        "projections": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Sales"
+                  }
+                },
+                "Property": "Sales Amount"
+              }
+            },
+            "queryRef": "Sales.Sales Amount",
+            "nativeQueryRef": "Sales Amount"
+          }
+        ]
+      }
+    },
+    "sortDefinition": {
+      "sort": [
+        {
+          "field": {
+            "Measure": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Sales"
+                }
+              },
+              "Property": "Sales Amount"
+            }
+          },
+          "direction": "Descending"
+        }
+      ],
+      "isDefaultSort": true
+    }
+  },
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualConfiguration/2.9.0/schema.json"
+}

@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "8bd178b329bd7610c088",
   "position": {
-    "x": 18.741944914015534,
-    "y": 15.618287428346276,
+    "x": 19.335038363171353,
+    "y": 15.191815856777493,
     "z": 0,
-    "height": 757.48694027479439,
-    "width": 1126.0785235837666,
+    "height": 758.20971867007665,
+    "width": 899.079283887468,
     "tabOrder": 2000
   },
   "visual": {
@@ -95,6 +95,42 @@
         }
       }
     },
+    "expansionStates": [
+      {
+        "roles": [
+          "Rows"
+        ],
+        "levels": [
+          {
+            "queryRefs": [
+              "Store.Country"
+            ],
+            "isCollapsed": true,
+            "identityKeys": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Store"
+                    }
+                  },
+                  "Property": "Country"
+                }
+              }
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "Store.State"
+            ],
+            "isCollapsed": true,
+            "isPinned": true
+          }
+        ],
+        "root": {}
+      }
+    ],
     "visualContainerObjects": {
       "stylePreset": [
         {

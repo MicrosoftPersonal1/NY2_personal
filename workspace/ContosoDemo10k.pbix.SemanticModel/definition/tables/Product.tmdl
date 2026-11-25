@@ -1,3 +1,4 @@
+/// Produktdimension mit Produkt-, Marken-, Hersteller-, Preis- und Kategorienmerkmalen.
 table Product
 	lineageTag: 788e06ac-419f-4210-be7d-232115f91c18
 

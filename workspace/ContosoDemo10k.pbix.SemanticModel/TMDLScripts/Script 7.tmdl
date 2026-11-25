@@ -1,0 +1,10 @@
+createOrReplace
+
+	ref table Sales
+
+		/// Marge als Anteil am Nettoumsatz; berechnet als Gesamtmarge geteilt durch Gesamtumsatz.
+		measure 'Marge %' = DIVIDE ( [Marge], [Umsatz] )
+			formatString: 0.0%
+			displayFolder: KPI\Marge
+			lineageTag: 86f21ce9-16b0-4d04-bc6b-3382c78a5682
+
