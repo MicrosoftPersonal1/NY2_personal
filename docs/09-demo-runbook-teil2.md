@@ -5,11 +5,12 @@ Kunde: **New Yorker (BI-Team)**
 
 ## 0) Vor dem Termin (5 Minuten)
 1. Branch `demo/teil2-prep` öffnen.
-2. Power BI Desktop mit `ContosoDemo10k` geöffnet lassen.
-3. In VS Code prüfen:
+2. **Power BI Desktop vor jedem Branch-Wechsel schließen.**
+3. Power BI Desktop mit `ContosoDemo10k` geöffnet lassen.
+4. In VS Code prüfen:
    - Copilot Agent Mode aktiv
    - Power BI Authoring MCP verbunden
-4. Optional Backup-Branch lokal verfügbar: `feature/report-umsatz-land`.
+5. Optional Backup-Branch lokal verfügbar: `feature/report-umsatz-land`.
 
 ## 1) Ablauf im Termin (minute-by-minute)
 
