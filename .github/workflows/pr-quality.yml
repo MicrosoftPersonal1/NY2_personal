@@ -36,6 +36,8 @@ jobs:
 
   dax-tests-or-export:
     runs-on: ubuntu-latest
+    env:
+      HAS_TEST_SECRETS: ${{ secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -44,23 +46,23 @@ jobs:
       - name: Install test dependencies
         run: pip install pyyaml requests azure-identity
       - name: DAX/Aggregation-Tests im TEST-Workspace
-        if: ${{ secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' }}
+        if: ${{ env.HAS_TEST_SECRETS == 'true' }}
         env:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         run: python ci/run_tests.py --ws "${{ secrets.TEST_WS_ID }}" --ds "${{ secrets.TEST_DS_ID }}" --junit test-results.xml
       - name: DAX-Abfragen generieren (Fallback ohne Secrets)
-        if: ${{ !(secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '') }}
+        if: ${{ env.HAS_TEST_SECRETS != 'true' }}
         run: python ci/run_tests.py --print-dax tests/generated.dax
       - name: Upload generated.dax
-        if: ${{ !(secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '') }}
+        if: ${{ env.HAS_TEST_SECRETS != 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: generated-dax
           path: tests/generated.dax
       - name: Upload JUnit
-        if: ${{ secrets.TEST_WS_ID != '' && secrets.TEST_DS_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' }}
+        if: ${{ env.HAS_TEST_SECRETS == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: aggregation-test-results

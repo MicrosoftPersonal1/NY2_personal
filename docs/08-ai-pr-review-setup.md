@@ -41,6 +41,7 @@ Quelle: https://learn.microsoft.com/en-us/azure/devops/repos/git/copilot-code-re
 - `TEST_DS_ID`
 
 Wenn diese fehlen, läuft der Fallback: `run_tests.py --print-dax` + Artifact `generated.dax`.
+Der Workflow prüft die Verfügbarkeit aller fünf Secrets im Job-`env` als `HAS_TEST_SECRETS`; die Step-`if`-Bedingungen vergleichen diesen Wert mit `'true'`, da `secrets` dort nicht direkt verfügbar ist.
 
 ### Azure Pipelines (Variable Group oder Pipeline-Variablen)
 - `TENANT_ID`
