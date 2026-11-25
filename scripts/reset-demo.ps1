@@ -12,6 +12,14 @@ if (-not (Test-Path ".git")) {
 }
 
 if (-not $Force) {
+    $pending = git status --porcelain
+    if ($pending) {
+        Write-Host "Abbruch: Es gibt uncommittete Änderungen. Bitte zuerst committen/stashen oder das Skript mit -Force ausführen." -ForegroundColor Red
+        exit 1
+    }
+}
+
+if (-not $Force) {
     Write-Host "Dieses Skript verwirft lokale, nicht commitete Änderungen und untracked Dateien." -ForegroundColor Yellow
     Write-Host "Ziel-Branch: $Branch"
     $answer = Read-Host "Zum Fortfahren exakt 'JA' eingeben"
