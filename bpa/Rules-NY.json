@@ -79,4 +79,4 @@
     "Expression": "Name.StartsWith(\"_\") or Name.StartsWith(\"Measure\") or Name.Contains(\"  \") or Name <> Name.Trim()",
     "CompatibilityLevel": 1200
   }
-]
+] 
